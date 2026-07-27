@@ -21,8 +21,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
-      issues: read
+      # write, not read: the action posts its review back to the PR. With read
+      # access Claude still runs and bills, but the post silently fails and the
+      # job stays green, so the review appears to have simply never happened.
+      pull-requests: write
+      issues: write
       id-token: write
 
     steps:
