@@ -20,8 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
-      issues: read
+      # write, not read: Claude replies to the @claude mention in a comment.
+      # Read access lets it run but not answer.
+      pull-requests: write
+      issues: write
       id-token: write
       actions: read # Required for Claude to read CI results on PRs
     steps:
