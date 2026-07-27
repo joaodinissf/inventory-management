@@ -6,6 +6,8 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
+    reports: 'Reports',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -126,7 +128,12 @@ export default {
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
       actualDelivery: 'Actual Delivery'
-    }
+    },
+    submittedOrders: 'Submitted Orders',
+    submittedOrdersNote: 'Restocking orders you have placed. Not affected by the filters above.',
+    submittedDate: 'Submitted',
+    leadTime: 'Lead Time',
+    leadTimeDays: '{days} days'
   },
 
   // Finance/Spending
@@ -188,6 +195,107 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and order against forecast shortfalls',
+    budgetLabel: 'Available Budget',
+    budgetHint: 'Drag to set how much you can spend this cycle',
+    allocated: 'Allocated',
+    remaining: 'Remaining',
+    coverage: 'Shortfalls Covered',
+    coverageValue: '{covered} of {total}',
+    recommendations: 'Recommended Restock',
+    noRecommendations: 'Increase the budget to see restocking recommendations.',
+    partial: 'Partial',
+    placeOrder: 'Place Order',
+    placingOrder: 'Placing order...',
+    orderPlaced: 'Order {orderNumber} submitted. Expected delivery in {days} days.',
+    orderFailed: 'Could not place the order: {message}',
+    viewInOrders: 'View in Orders',
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      shortfall: 'Shortfall',
+      recommendedQty: 'Recommended Qty',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time',
+      supplier: 'Supplier'
+    }
+  },
+
+  // Reports
+  reports: {
+    title: 'Performance Reports',
+    description: 'View quarterly performance metrics and monthly trends',
+    errors: {
+      loadFailed: 'Failed to load reports: {message}'
+    },
+    quarterly: {
+      title: 'Quarterly Performance',
+      table: {
+        quarter: 'Quarter',
+        totalOrders: 'Total Orders',
+        totalRevenue: 'Total Revenue',
+        avgOrderValue: 'Avg Order Value',
+        fulfillmentRate: 'Fulfillment Rate'
+      }
+    },
+    monthlyTrend: {
+      title: 'Monthly Revenue Trend'
+    },
+    monthOverMonth: {
+      title: 'Month-over-Month Analysis',
+      table: {
+        month: 'Month',
+        orders: 'Orders',
+        revenue: 'Revenue',
+        change: 'Change',
+        growthRate: 'Growth Rate'
+      },
+      notAvailable: 'N/A'
+    },
+    summary: {
+      totalRevenueYtd: 'Total Revenue (YTD)',
+      avgMonthlyRevenue: 'Avg Monthly Revenue',
+      totalOrdersYtd: 'Total Orders (YTD)',
+      bestQuarter: 'Best Performing Quarter'
+    },
+    chart: {
+      // {revenue} is pre-formatted by formatCurrency so the currency symbol is
+      // locale-aware and never hardcoded in the template or in this string.
+      revenueTooltip: 'Revenue: {revenue}'
+    }
+  },
+
+  // Backlog
+  backlog: {
+    title: 'Backlog Management',
+    description: 'Track and resolve inventory shortages',
+    stats: {
+      highPriority: 'High Priority',
+      mediumPriority: 'Medium Priority',
+      lowPriority: 'Low Priority',
+      totalItems: 'Total Backlog Items'
+    },
+    itemsTitle: 'Backlog Items',
+    empty: 'No backlog items - all orders can be fulfilled!',
+    table: {
+      orderId: 'Order ID',
+      sku: 'SKU',
+      itemName: 'Item Name',
+      quantityNeeded: 'Quantity Needed',
+      quantityAvailable: 'Quantity Available',
+      shortage: 'Shortage',
+      daysDelayed: 'Days Delayed',
+      priority: 'Priority'
+    },
+    unitsShort: 'units short',
+    days: 'days',
+    loadError: 'Failed to load backlog: {message}'
+  },
+
   // Filters
   filters: {
     timePeriod: 'Time Period',
@@ -204,6 +312,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'

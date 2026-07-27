@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture — Factory Inventory Management System</title>
+<style>
+  :root {
+    --ink: #0f172a;
+    --ink-2: #334155;
+    --muted: #64748b;
+    --faint: #94a3b8;
+    --line: #e2e8f0;
+    --line-2: #cbd5e1;
+    --bg: #ffffff;
+    --panel: #f8fafc;
+    --panel-2: #f1f5f9;
+    --blue: #2563eb;
+    --blue-bg: #eff6ff;
+    --green: #059669;
+    --green-bg: #ecfdf5;
+    --amber: #b45309;
+    --amber-bg: #fffbeb;
+    --red: #dc2626;
+    --red-bg: #fef2f2;
+    --violet: #7c3aed;
+    --violet-bg: #f5f3ff;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #f1f5f9;
+      --ink-2: #cbd5e1;
+      --muted: #94a3b8;
+      --faint: #64748b;
+      --line: #1e293b;
+      --line-2: #334155;
+      --bg: #0b1120;
+      --panel: #0f172a;
+      --panel-2: #131f36;
+      --blue: #60a5fa;
+      --blue-bg: #10233f;
+      --green: #34d399;
+      --green-bg: #0c2a22;
+      --amber: #fbbf24;
+      --amber-bg: #2b2110;
+      --red: #f87171;
+      --red-bg: #2c1416;
+      --violet: #a78bfa;
+      --violet-bg: #1e1836;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.6 ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  code, .mono {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.88em;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 32px 96px; }
+
+  /* ---------- masthead ---------- */
+  header.top {
+    border-bottom: 1px solid var(--line);
+    padding: 56px 0 32px;
+    margin-bottom: 48px;
+  }
+  .eyebrow {
+    font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; margin: 0 0 12px;
+  }
+  h1 { font-size: 34px; line-height: 1.15; letter-spacing: -.02em; margin: 0 0 14px; font-weight: 650; }
+  .lede { font-size: 17px; color: var(--ink-2); max-width: 68ch; margin: 0; }
+
+  .facts { display: flex; flex-wrap: wrap; gap: 32px; margin-top: 28px; }
+  .fact .n { font-size: 22px; font-weight: 640; letter-spacing: -.01em; }
+  .fact .l { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+
+  /* ---------- sections ---------- */
+  section { margin-bottom: 64px; scroll-margin-top: 24px; }
+  h2 {
+    font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+    font-weight: 600; margin: 0 0 20px; padding-bottom: 10px; border-bottom: 1px solid var(--line);
+  }
+  h3 { font-size: 16px; font-weight: 620; margin: 28px 0 10px; letter-spacing: -.01em; }
+  p { max-width: 72ch; }
+  .note { color: var(--muted); font-size: 13.5px; }
+
+  /* ---------- layer diagram ---------- */
+  .stack { display: grid; gap: 0; }
+  .layer {
+    border: 1px solid var(--line-2);
+    border-radius: 10px;
+    background: var(--panel);
+    padding: 16px 18px;
+  }
+  .layer-head {
+    display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px;
+  }
+  .layer-title { font-weight: 620; font-size: 14px; }
+  .layer-sub { font-size: 12px; color: var(--muted); }
+  .badge {
+    margin-left: auto; font-size: 11px; font-weight: 600; padding: 2px 8px;
+    border-radius: 999px; letter-spacing: .03em;
+  }
+  .b-blue   { background: var(--blue-bg);   color: var(--blue); }
+  .b-green  { background: var(--green-bg);  color: var(--green); }
+  .b-violet { background: var(--violet-bg); color: var(--violet); }
+  .b-amber  { background: var(--amber-bg);  color: var(--amber); }
+
+  .boxes { display: flex; flex-wrap: wrap; gap: 8px; }
+  .box {
+    background: var(--bg); border: 1px solid var(--line);
+    border-radius: 7px; padding: 7px 11px; font-size: 12.5px;
+  }
+  .box b { font-weight: 600; }
+  .box span { color: var(--muted); }
+
+  .connector {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px; padding: 9px 0; color: var(--muted); font-size: 12px;
+  }
+  .connector::before, .connector::after {
+    content: ""; width: 44px; height: 1px; background: var(--line-2);
+  }
+  .connector .mono { color: var(--ink-2); }
+
+  /* ---------- flow ---------- */
+  ol.flow { list-style: none; counter-reset: s; margin: 0; padding: 0; }
+  ol.flow li {
+    counter-increment: s; position: relative;
+    padding: 0 0 20px 44px; border-left: 1px solid var(--line); margin-left: 13px;
+  }
+  ol.flow li:last-child { border-left-color: transparent; padding-bottom: 0; }
+  ol.flow li::before {
+    content: counter(s); position: absolute; left: -13px; top: -2px;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--panel-2); border: 1px solid var(--line-2);
+    color: var(--ink-2); font-size: 11.5px; font-weight: 640;
+    display: flex; align-items: center; justify-content: center;
+  }
+  ol.flow .step-t { font-weight: 600; font-size: 14px; }
+  ol.flow .step-w { font-size: 12px; color: var(--muted); }
+  ol.flow p { margin: 4px 0 0; font-size: 13.5px; color: var(--ink-2); }
+
+  /* ---------- tables ---------- */
+  .scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th {
+    text-align: left; font-size: 11px; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; padding: 11px 14px;
+    background: var(--panel); border-bottom: 1px solid var(--line); white-space: nowrap;
+  }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td.mono { color: var(--ink-2); white-space: nowrap; }
+
+  .pill {
+    display: inline-block; font-size: 10.5px; font-weight: 650; letter-spacing: .04em;
+    padding: 1px 7px; border-radius: 4px; background: var(--green-bg); color: var(--green);
+  }
+  .pill.miss { background: var(--red-bg); color: var(--red); }
+
+  /* ---------- cards ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+  .card { border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; background: var(--panel); }
+  .card h4 { margin: 0 0 8px; font-size: 13.5px; font-weight: 640; }
+  .card ul { margin: 0; padding-left: 17px; font-size: 13px; color: var(--ink-2); }
+  .card li { margin-bottom: 4px; }
+  .card li:last-child { margin-bottom: 0; }
+  .card .v { color: var(--muted); }
+
+  /* ---------- findings ---------- */
+  .finding {
+    border: 1px solid var(--line); border-left: 3px solid var(--line-2);
+    border-radius: 8px; padding: 14px 18px; margin-bottom: 12px; background: var(--panel);
+  }
+  .finding.high { border-left-color: var(--red); }
+  .finding.med  { border-left-color: var(--amber); }
+  .finding.low  { border-left-color: var(--faint); }
+  .finding h4 { margin: 0 0 6px; font-size: 14px; font-weight: 620; }
+  .finding p { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+  .sev {
+    float: right; font-size: 10.5px; font-weight: 650; letter-spacing: .05em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  footer {
+    border-top: 1px solid var(--line); padding-top: 20px; margin-top: 72px;
+    font-size: 12.5px; color: var(--muted);
+  }
+
+  @media (max-width: 720px) {
+    .wrap { padding: 0 20px 64px; }
+    h1 { font-size: 27px; }
+    .facts { gap: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="eyebrow">Architecture Reference</p>
+  <h1>Factory Inventory Management System</h1>
+  <p class="lede">
+    An analytics dashboard for factory operations: a Vue&nbsp;3 single-page app talking to a
+    FastAPI service that serves fixture data held in memory. No database, no authentication, no
+    persistence — every process restart returns the system to its initial state.
+  </p>
+  <div class="facts">
+    <div class="fact"><div class="n">2</div><div class="l">Services</div></div>
+    <div class="fact"><div class="n">14</div><div class="l">HTTP endpoints</div></div>
+    <div class="fact"><div class="n">6</div><div class="l">Routed pages</div></div>
+    <div class="fact"><div class="n">7</div><div class="l">JSON fixtures</div></div>
+    <div class="fact"><div class="n">40</div><div class="l">Backend tests</div></div>
+  </div>
+</header>
+
+<!-- ============ ARCHITECTURE ============ -->
+<section id="architecture">
+  <h2>System Architecture</h2>
+  <p>
+    Two processes, started independently, communicating over plain HTTP on localhost. The frontend
+    holds no build-time knowledge of the backend beyond a hardcoded base URL; the backend holds no
+    knowledge of the frontend at all and permits any origin.
+  </p>
+
+  <div class="stack">
+
+    <div class="layer">
+      <div class="layer-head">
+        <span class="layer-title">Browser</span>
+        <span class="layer-sub">Vue 3 single-page application</span>
+        <span class="badge b-green">:3000</span>
+      </div>
+      <div class="boxes">
+        <div class="box"><b>App.vue</b> <span>· shell, nav, modals</span></div>
+        <div class="box"><b>vue-router</b> <span>· HTML5 history</span></div>
+        <div class="box"><b>7 views</b> <span>· page components</span></div>
+        <div class="box"><b>9 components</b> <span>· filter bar, modals</span></div>
+        <div class="box"><b>3 composables</b> <span>· filters, auth, i18n</span></div>
+      </div>
+    </div>
+
+    <div class="connector">served by <span class="mono">vite dev</span> · HMR</div>
+
+    <div class="layer">
+      <div class="layer-head">
+        <span class="layer-title">API client</span>
+        <span class="layer-sub">client/src/api.js</span>
+        <span class="badge b-blue">axios</span>
+      </div>
+      <div class="boxes">
+        <div class="box"><b>Single exported object</b> <span>· one method per endpoint</span></div>
+        <div class="box"><b>Query-param assembly</b> <span>· drops <code>'all'</code> sentinels</span></div>
+        <div class="box"><b>No interceptors</b> <span>· no retry, no auth header</span></div>
+      </div>
+    </div>
+
+    <div class="connector"><span class="mono">GET http://localhost:8001/api/…</span> · CORS <code>*</code></div>
+
+    <div class="layer">
+      <div class="layer-head">
+        <span class="layer-title">API service</span>
+        <span class="layer-sub">server/main.py — FastAPI + Uvicorn</span>
+        <span class="badge b-violet">:8001</span>
+      </div>
+      <div class="boxes">
+        <div class="box"><b>14 route handlers</b> <span>· all <code>GET</code></span></div>
+        <div class="box"><b>apply_filters()</b> <span>· warehouse / category / status</span></div>
+        <div class="box"><b>filter_by_month()</b> <span>· month or quarter</span></div>
+        <div class="box"><b>6 Pydantic models</b> <span>· response validation</span></div>
+        <div class="box"><b>Aggregation</b> <span>· summary, quarterly, trends</span></div>
+      </div>
+    </div>
+
+    <div class="connector">module-level Python lists · read at import</div>
+
+    <div class="layer">
+      <div class="layer-head">
+        <span class="layer-title">Data</span>
+        <span class="layer-sub">server/data/*.json via mock_data.py</span>
+        <span class="badge b-amber">in-memory</span>
+      </div>
+      <div class="boxes">
+        <div class="box"><b>orders.json</b> <span>· 250 orders, 2025</span></div>
+        <div class="box"><b>inventory.json</b> <span>· 32 SKUs</span></div>
+        <div class="box"><b>spending.json</b> <span>· summary + monthly + category</span></div>
+        <div class="box"><b>transactions.json</b></div>
+        <div class="box"><b>demand_forecasts.json</b></div>
+        <div class="box"><b>backlog_items.json</b></div>
+        <div class="box"><b>purchase_orders.json</b> <span>· empty</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="note" style="margin-top:18px">
+    <strong>Consequence of the in-memory design:</strong> <code>mock_data.py</code> reads every JSON file
+    once at import time into plain Python lists. Handlers filter those lists with list comprehensions on
+    each request. The single write path — submitting a restock order — appends to a module-level list,
+    so submitted orders survive navigation between tabs but are lost on restart.
+  </p>
+</section>
+
+<!-- ============ TECH STACK ============ -->
+<section id="stack">
+  <h2>Tech Stack</h2>
+  <div class="grid">
+
+    <div class="card">
+      <h4>Frontend</h4>
+      <ul>
+        <li>Vue <span class="v">3.4 — Composition API</span></li>
+        <li>Vue Router <span class="v">4.3 — createWebHistory</span></li>
+        <li>Vite <span class="v">5.2 — dev server, port 3000</span></li>
+        <li>axios <span class="v">1.6</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h4>Backend</h4>
+      <ul>
+        <li>Python <span class="v">&ge; 3.11</span></li>
+        <li>FastAPI <span class="v">&ge; 0.110</span></li>
+        <li>Uvicorn <span class="v">ASGI server, port 8001</span></li>
+        <li>Pydantic <span class="v">v2 — response models</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h4>Notably absent</h4>
+      <ul>
+        <li>No state library <span class="v">— no Pinia or Vuex</span></li>
+        <li>No CSS framework <span class="v">— hand-written scoped CSS</span></li>
+        <li>No chart library <span class="v">— inline SVG and CSS grid</span></li>
+        <li>No database or ORM</li>
+        <li>No auth <span class="v">— user is hardcoded</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h4>Tooling &amp; tests</h4>
+      <ul>
+        <li><code>uv</code> <span class="v">— Python env and deps</span></li>
+        <li><code>npm</code> <span class="v">— JS deps</span></li>
+        <li>pytest + FastAPI <code>TestClient</code></li>
+        <li>40 tests <span class="v">across 3 backend files</span></li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ DATA FLOW ============ -->
+<section id="dataflow">
+  <h2>Data Flow</h2>
+  <p>
+    Every page follows the same path. The example below traces a user narrowing the dashboard to a
+    single warehouse — the interaction that exercises the most layers.
+  </p>
+
+  <ol class="flow">
+    <li>
+      <div class="step-t">Filter changes in the UI</div>
+      <div class="step-w">components/FilterBar.vue</div>
+      <p>Four <code>&lt;select&gt;</code> controls — Time Period, Location, Category, Order Status —
+      are bound with <code>v-model</code> to refs owned by the filter composable.</p>
+    </li>
+    <li>
+      <div class="step-t">Shared state updates</div>
+      <div class="step-w">composables/useFilters.js</div>
+      <p>The refs are declared at <em>module scope</em>, outside the exported function. Every importer
+      receives the same ref instances, so the composable acts as a singleton store — this is what
+      replaces Pinia in this codebase.</p>
+    </li>
+    <li>
+      <div class="step-t">Views react and request</div>
+      <div class="step-w">views/*.vue</div>
+      <p>Each view watches the filter refs and calls <code>getCurrentFilters()</code>, which maps UI
+      names onto API names — <code>selectedLocation</code> becomes <code>warehouse</code>,
+      <code>selectedPeriod</code> becomes <code>month</code>.</p>
+    </li>
+    <li>
+      <div class="step-t">Query string assembled</div>
+      <div class="step-w">api.js</div>
+      <p>Any filter whose value is the sentinel <code>'all'</code> is omitted from the
+      <code>URLSearchParams</code>. An absent parameter therefore means "unfiltered" — the client and
+      server agree on this convention independently, in two places.</p>
+    </li>
+    <li>
+      <div class="step-t">Server filters the lists</div>
+      <div class="step-w">main.py — apply_filters, filter_by_month</div>
+      <p>Filters apply sequentially over the in-memory lists. Category and status match
+      case-insensitively; warehouse matches exactly. Month accepts either <code>2025-03</code> or a
+      quarter key such as <code>Q1-2025</code>, expanded through <code>QUARTER_MAP</code>.</p>
+    </li>
+    <li>
+      <div class="step-t">Aggregation, where it happens server-side</div>
+      <div class="step-w">/api/dashboard/summary, /api/reports/*</div>
+      <p>Three endpoints compute rather than return: inventory value, low-stock counts and pending
+      orders for the dashboard; per-quarter revenue and fulfilment rate; and month-over-month trends.
+      Everything else returns filtered rows unchanged.</p>
+    </li>
+    <li>
+      <div class="step-t">Pydantic validates the response</div>
+      <div class="step-w">response_model=List[…]</div>
+      <p>Applied on the six list endpoints. The aggregate and spending endpoints return bare dicts
+      with no model, so their shape is unchecked.</p>
+    </li>
+    <li>
+      <div class="step-t">View stores raw, derives computed</div>
+      <div class="step-w">views/*.vue</div>
+      <p>Response arrays land in <code>ref()</code>s untouched. Every displayed number — KPI cards,
+      chart series, status tallies — is a <code>computed()</code> over those refs, so a new response
+      recalculates the page automatically.</p>
+    </li>
+  </ol>
+
+  <h3>Cross-cutting: localisation and currency</h3>
+  <p class="note">
+    <code>useI18n.js</code> uses the same module-scope singleton pattern, backed by
+    <code>localStorage</code>. Locale drives currency: <code>en</code> renders USD, <code>ja</code>
+    renders JPY through <code>utils/currency.js</code>, which multiplies by a hardcoded rate of
+    <code>150</code>. The API is currency-agnostic and always returns USD figures — conversion is
+    purely a presentation concern.
+  </p>
+</section>
+
+<!-- ============ API SURFACE ============ -->
+<section id="api">
+  <h2>API Surface</h2>
+  <p>
+    Of the 16 implemented endpoints, 15 are <code>GET</code>. The lone exception is
+    <code class="mono">POST /api/restock-orders</code>, which is the only route that mutates server state.
+  </p>
+
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th>Endpoint</th><th>Filters</th><th>Returns</th><th>Consumed by</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="mono">/api/inventory</td><td>warehouse, category</td><td>32 SKUs</td><td>Dashboard, Inventory, Demand, Backlog</td></tr>
+        <tr><td class="mono">/api/inventory/{id}</td><td>—</td><td>One item, 404 if absent</td><td>—</td></tr>
+        <tr><td class="mono">/api/orders</td><td>warehouse, category, status, month</td><td>250 orders</td><td>Dashboard, Orders, Spending</td></tr>
+        <tr><td class="mono">/api/orders/{id}</td><td>—</td><td>One order, 404 if absent</td><td>—</td></tr>
+        <tr><td class="mono">/api/demand</td><td>none</td><td>Forecasts with trend</td><td>Demand</td></tr>
+        <tr><td class="mono">/api/backlog</td><td>none</td><td>Backlog + <code>has_purchase_order</code></td><td>Dashboard, Backlog</td></tr>
+        <tr><td class="mono">/api/dashboard/summary</td><td>all four</td><td>Computed aggregates</td><td>Dashboard</td></tr>
+        <tr><td class="mono">/api/spending/summary</td><td>none</td><td>Spending totals</td><td>Spending</td></tr>
+        <tr><td class="mono">/api/spending/monthly</td><td>none</td><td>Monthly breakdown</td><td>Spending</td></tr>
+        <tr><td class="mono">/api/spending/categories</td><td>none</td><td>Category breakdown</td><td>Spending</td></tr>
+        <tr><td class="mono">/api/spending/transactions</td><td>none</td><td>Recent transactions</td><td>Spending</td></tr>
+        <tr><td class="mono">/api/reports/quarterly</td><td>none</td><td>Per-quarter, computed</td><td>Reports</td></tr>
+        <tr><td class="mono">/api/reports/monthly-trends</td><td>none</td><td>Per-month, computed</td><td>Reports</td></tr>
+        <tr><td class="mono">/</td><td>—</td><td>Service banner</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Called by the client but not implemented</h3>
+  <p class="note">
+    <code>api.js</code> exposes six further methods. All six target routes the server never registers;
+    each returns <strong>404</strong>, confirmed against the running service.
+  </p>
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th>Client method</th><th>Target</th><th>Server</th><th>Caller</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="mono">getTasks()</td><td class="mono">GET /api/tasks</td><td><span class="pill miss">404</span></td><td>App.vue on mount</td></tr>
+        <tr><td class="mono">createTask()</td><td class="mono">POST /api/tasks</td><td><span class="pill miss">404</span></td><td>App.vue</td></tr>
+        <tr><td class="mono">deleteTask()</td><td class="mono">DELETE /api/tasks/{id}</td><td><span class="pill miss">404</span></td><td>App.vue</td></tr>
+        <tr><td class="mono">toggleTask()</td><td class="mono">PATCH /api/tasks/{id}</td><td><span class="pill miss">404</span></td><td>App.vue</td></tr>
+        <tr><td class="mono">createPurchaseOrder()</td><td class="mono">POST /api/purchase-orders</td><td><span class="pill miss">404</span></td><td>unused</td></tr>
+        <tr><td class="mono">getPurchaseOrderByBacklogItem()</td><td class="mono">GET /api/purchase-orders/{id}</td><td><span class="pill miss">404</span></td><td>unused</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ FRONTEND ============ -->
+<section id="frontend">
+  <h2>Frontend Structure</h2>
+
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th>Route</th><th>View</th><th>Data sources</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="mono">/</td><td>Dashboard.vue</td><td>summary, orders, inventory, backlog</td><td><span class="pill">routed</span></td></tr>
+        <tr><td class="mono">/inventory</td><td>Inventory.vue</td><td>inventory</td><td><span class="pill">routed</span></td></tr>
+        <tr><td class="mono">/orders</td><td>Orders.vue</td><td>orders</td><td><span class="pill">routed</span></td></tr>
+        <tr><td class="mono">/demand</td><td>Demand.vue</td><td>demand, inventory</td><td><span class="pill">routed</span></td></tr>
+        <tr><td class="mono">/spending</td><td>Spending.vue</td><td>spending &times;4, orders</td><td><span class="pill">routed</span></td></tr>
+        <tr><td class="mono">/reports</td><td>Reports.vue</td><td>reports</td><td><span class="pill">routed</span></td></tr>
+        <tr><td class="mono">—</td><td>Backlog.vue</td><td>backlog, inventory</td><td><span class="pill miss">unreachable</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Composables — the state layer</h3>
+  <div class="grid">
+    <div class="card">
+      <h4>useFilters.js</h4>
+      <ul>
+        <li>Four global filter refs</li>
+        <li><code>getCurrentFilters()</code> maps UI → API names</li>
+        <li>Consumed by every view and the filter bar</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>useI18n.js</h4>
+      <ul>
+        <li><code>en</code> / <code>ja</code> locale objects</li>
+        <li>Falls back to English per key</li>
+        <li>Persists choice to <code>localStorage</code></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>useAuth.js</h4>
+      <ul>
+        <li><code>isAuthenticated</code> hardcoded <code>true</code></li>
+        <li>User profile is a literal, localised inline</li>
+        <li>Tasks list is mock data merged with API results</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINDINGS ============ -->
+<section id="findings">
+  <h2>Observations</h2>
+  <p>
+    Points where the code does not match its stated intent. Each was verified against the running
+    system rather than inferred from reading alone.
+  </p>
+
+  <div class="finding high">
+    <span class="sev">Broken</span>
+    <h4>The task feature has no server</h4>
+    <p><code>App.vue</code> calls <code>api.getTasks()</code> on mount and offers add, delete and toggle.
+    None of the four <code>/api/tasks</code> routes exist. Every call 404s, and the handler swallows the
+    failure into <code>console.error</code>, so the Tasks modal silently falls back to the four hardcoded
+    tasks in <code>useAuth.js</code>. The UI gives no indication that anything failed.</p>
+  </div>
+
+  <div class="finding high">
+    <span class="sev">Broken</span>
+    <h4>Purchase orders can never be created</h4>
+    <p><code>purchase_orders.json</code> is an empty array, and the only code that would write to it is
+    the unimplemented <code>POST /api/purchase-orders</code>. The <code>has_purchase_order</code> flag
+    that <code>/api/backlog</code> computes is therefore <code>false</code> for every item, permanently.
+    The two client methods for this feature are dead code — nothing calls them.</p>
+  </div>
+
+  <div class="finding med">
+    <span class="sev">Unreachable</span>
+    <h4>Backlog.vue is orphaned</h4>
+    <p>The view is fully written and fetches its own data, but <code>main.js</code> registers no route
+    for it and the nav bar has no entry. The README advertises backlog monitoring as a feature. The
+    Dashboard shows backlog data inline instead, via <code>BacklogDetailModal</code>.</p>
+  </div>
+
+  <div class="finding med">
+    <span class="sev">Data</span>
+    <h4>Fulfilment rate declines across quarters by construction</h4>
+    <p><code>/api/reports/quarterly</code> defines fulfilment as delivered ÷ total orders. Later-quarter
+    orders are more likely to still be Shipped or Processing, so the metric falls from 77.4% in Q1 to
+    35.5% in Q4 — an artefact of order age, not of performance. It sits alongside a 96.8% "order fill
+    rate" on the Overview page, computed differently.</p>
+  </div>
+
+  <div class="finding low">
+    <span class="sev">Config</span>
+    <h4>Permissive CORS</h4>
+    <p><code>allow_origins=["*"]</code> is combined with <code>allow_credentials=True</code>. Acceptable
+    for a local demo, and the server's own CLAUDE.md flags it — worth noting because the combination is
+    rejected by browsers in a deployed setting.</p>
+  </div>
+
+  <div class="finding low">
+    <span class="sev">Coupling</span>
+    <h4>Filter conventions are duplicated</h4>
+    <p>The <code>'all'</code> sentinel is stripped client-side in <code>api.js</code> and independently
+    checked server-side in <code>apply_filters</code>. Both must stay in agreement, but neither
+    references the other. The same is true of the UI-name to API-name mapping.</p>
+  </div>
+</section>
+
+<footer>
+  Generated from a read of the codebase at branch <code>new_features</code>.
+  Endpoint behaviour verified against the running services on ports 3000 and 8001.
+</footer>
+
+</div>
+</body>
+</html>
