@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '在庫補充',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -126,7 +127,12 @@ export default {
       status: 'ステータス',
       expectedDelivery: '予定配達日',
       actualDelivery: '実際の配達日'
-    }
+    },
+    submittedOrders: '発注済み注文',
+    submittedOrdersNote: '発注した在庫補充注文です。上のフィルターの影響を受けません。',
+    submittedDate: '発注日',
+    leadTime: 'リードタイム',
+    leadTimeDays: '{days}日'
   },
 
   // Finance/Spending
@@ -188,6 +194,36 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: '在庫補充',
+    description: '予算を設定し、予測不足分を発注します',
+    budgetLabel: '利用可能予算',
+    budgetHint: 'ドラッグして今期の支出可能額を設定してください',
+    allocated: '割当額',
+    remaining: '残額',
+    coverage: '充足した不足分',
+    coverageValue: '{total}件中{covered}件',
+    recommendations: '推奨補充リスト',
+    noRecommendations: '予算を増やすと補充の推奨が表示されます。',
+    partial: '一部',
+    placeOrder: '発注する',
+    placingOrder: '発注中...',
+    orderPlaced: '注文{orderNumber}を発注しました。配達予定は{days}日後です。',
+    orderFailed: '発注できませんでした: {message}',
+    viewInOrders: '注文タブで表示',
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      shortfall: '不足数',
+      recommendedQty: '推奨数量',
+      unitCost: '単価',
+      lineTotal: '小計',
+      leadTime: 'リードタイム',
+      supplier: 'サプライヤー'
+    }
+  },
+
   // Filters
   filters: {
     timePeriod: '期間',
@@ -204,6 +240,7 @@ export default {
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
+    submitted: '発注済み',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
     adequate: '適量'

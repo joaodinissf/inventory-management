@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -126,7 +127,12 @@ export default {
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
       actualDelivery: 'Actual Delivery'
-    }
+    },
+    submittedOrders: 'Submitted Orders',
+    submittedOrdersNote: 'Restocking orders you have placed. Not affected by the filters above.',
+    submittedDate: 'Submitted',
+    leadTime: 'Lead Time',
+    leadTimeDays: '{days} days'
   },
 
   // Finance/Spending
@@ -188,6 +194,36 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and order against forecast shortfalls',
+    budgetLabel: 'Available Budget',
+    budgetHint: 'Drag to set how much you can spend this cycle',
+    allocated: 'Allocated',
+    remaining: 'Remaining',
+    coverage: 'Shortfalls Covered',
+    coverageValue: '{covered} of {total}',
+    recommendations: 'Recommended Restock',
+    noRecommendations: 'Increase the budget to see restocking recommendations.',
+    partial: 'Partial',
+    placeOrder: 'Place Order',
+    placingOrder: 'Placing order...',
+    orderPlaced: 'Order {orderNumber} submitted. Expected delivery in {days} days.',
+    orderFailed: 'Could not place the order: {message}',
+    viewInOrders: 'View in Orders',
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      shortfall: 'Shortfall',
+      recommendedQty: 'Recommended Qty',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time',
+      supplier: 'Supplier'
+    }
+  },
+
   // Filters
   filters: {
     timePeriod: 'Time Period',
@@ -204,6 +240,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'
